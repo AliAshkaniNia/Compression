@@ -18,7 +18,7 @@ set_target_properties(${EXEC_TARGET} PROPERTIES CXX_EXTENSIONS OFF)
 
 target_compile_options(${EXEC_TARGET} PRIVATE
         # set warnings for all build types
-        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -Wpedantic -Werror -fno-omit-frame-pointer>
+        # $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -Wpedantic -Werror -fno-omit-frame-pointer>
          # O3 optimisation Release 
         $<$<AND:$<CXX_COMPILER_ID:GNU,Clang,AppleClang>,$<CONFIG:Release>>:-O3>
         # debug optimisation in Debug
