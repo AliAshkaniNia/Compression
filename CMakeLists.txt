@@ -9,9 +9,14 @@ add_executable(${EXEC_TARGET})
 target_sources(${EXEC_TARGET}
         PRIVATE
         main.cpp
+        src/compressionAlgorithm.cpp
+        src/LZWCompression.cpp 
+        src/huffmanCompression.cpp
         )
 
-
+target_include_directories(${EXEC_TARGET}  PRIVATE 
+        ${CMAKE_CURRENT_LIST_DIR}/include/
+)
 
 target_compile_features(${EXEC_TARGET} PRIVATE cxx_std_20)
 set_target_properties(${EXEC_TARGET} PROPERTIES CXX_EXTENSIONS OFF)

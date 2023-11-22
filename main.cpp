@@ -1,8 +1,9 @@
 #include <cxxopts.hpp>
-#include <fstream>
 #include <iostream>
-#include <istream>
 #include <string>
+#include "compressionAlgorithm.h"
+#include "LZWCompression.h"
+#include "huffmanCompression.h"
 
 int main(int argc, char* argv[]) {
     // Command line options
@@ -10,11 +11,11 @@ int main(int argc, char* argv[]) {
 
     options.add_options()
         ("h,help", "Show help")
-        ("a,algorithm", "Compression algorithm", cxxopts::value<std::string>()->default_value("huffman"))
+        ("a,algorithm", "Compression algorithm (can be huffman or LZW)", cxxopts::value<std::string>()->default_value("huffman"))
         ("e,encode", "Encode input to output")
         ("d,decode", "Decode")
-        ("i,input", "Input file (Can be stdin if left empty)", cxxopts::value<std::string>())
-        ("o,output", "Output file (Can be stdout if left empty)", cxxopts::value<std::string>());
+        ("i,input", "Input file (Will be stdin if left empty)", cxxopts::value<std::string>())
+        ("o,output", "Output file (Will be stdout if left empty)", cxxopts::value<std::string>());
 
     auto result = options.parse(argc, argv);
 
@@ -31,14 +32,21 @@ int main(int argc, char* argv[]) {
 
     std::string algorithmName = result["algorithm"].as<std::string>();
 
-    if (algorithmName != "huffman" && algorithmName != "LZW") {
+    std::unique_ptr<CompressionAlgorithm> compression;
+
+    if (algorithmName == "huffman") {
+        compression = std::make_unique<HuffmanCompression>();
+    } else if (algorithmName == "LZW") {
+        compression = std::make_unique<LZWCompression>();
+    } else {
         std::cerr << "Invalid algorithm. Use -h or --help for help." << std::endl;
         return 1;
     }
 
-    bool decode = result.count("decode") > 0;
+    bool encode = result.count("encode") > 0;
     std::string inputFileName;
     std::string outputFileName;
+    std::string inputText, outputText;
 
     if (result.count("input")) {
         inputFileName = result["input"].as<std::string>();
@@ -48,39 +56,19 @@ int main(int argc, char* argv[]) {
         outputFileName = result["output"].as<std::string>();
     }
 
-    // Read input text from file or stdin
-    std::istream* input;
-    std::ifstream inputFile;
-    if (!inputFileName.empty()) {
-        inputFile.open(inputFileName);
-        if (!inputFile) {
-            std::cerr << "Error opening input file: " << inputFileName << std::endl;
-            return 1;
-        }
-        input = &inputFile;
-    } else {
-        input = &std::cin;
+    if(compression->loadFromFile(inputFileName, inputText) != 0){
+        return 1;
     }
 
-    // Read the entire input file or stdin into a string
-    std::string inputText((std::istreambuf_iterator<char>(*input)), std::istreambuf_iterator<char>());
-
-
-    std::ostream* output;
-    std::ofstream outputFile;
-    if (!outputFileName.empty()) {
-        outputFile.open(outputFileName);
-        if (!outputFile) {
-            std::cerr << "Error opening output file: " << outputFileName << std::endl;
-            // deleteAlgorithm(compressionAlgorithm);
-            return 1;
-        }
-        output = &outputFile;
-    } else {
-        output = &std::cout;
+    if(encode){
+        compression->encode(inputText, outputText);
+    }else{
+        compression->decode(inputText, outputText);
     }
 
-    *output << " hello ( " << inputText << ")\n";
+    if(compression->saveToFile(inputFileName, inputText) != 0){
+        return 1;
+    }
 
-    // Rest of your code...
+    return 0;
 }
