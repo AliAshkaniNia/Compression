@@ -19,6 +19,8 @@ int CompressionAlgorithm::saveToFile(const std::string& filename, const std::str
     *output << data;
     return 0;
 }
+
+// TODO : Needs to close propertly
 int CompressionAlgorithm::loadFromFile(const std::string& filename, std::string& data){
     std::istream* input;
     std::ifstream inputFile;
@@ -36,6 +38,8 @@ int CompressionAlgorithm::loadFromFile(const std::string& filename, std::string&
     // Read the entire input file or stdin into a string
     std::string inputText((std::istreambuf_iterator<char>(*input)), std::istreambuf_iterator<char>());
     data = std::move(inputText);
+
+    // inputFile.close();
 
     return 0;
 }
