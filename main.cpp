@@ -1,9 +1,9 @@
 #include <cxxopts.hpp>
 #include <iostream>
 #include <string>
-#include "compressionAlgorithm.h"
-#include "LZWCompression.h"
-#include "huffmanCompression.h"
+#include "algorithms/compressionAlgorithm.h"
+#include "algorithms/LZWCompression.h"
+#include "algorithms/huffmanCompression.h"
 
 int main(int argc, char* argv[]) {
     // Command line options

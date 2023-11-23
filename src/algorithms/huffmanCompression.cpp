@@ -1,4 +1,4 @@
-#include "huffmanCompression.h"
+#include "algorithms/huffmanCompression.h"
 #include <vector>
 #include <functional>
 #include <sstream>

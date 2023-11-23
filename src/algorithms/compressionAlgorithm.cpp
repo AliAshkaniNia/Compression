@@ -1,4 +1,4 @@
-#include "compressionAlgorithm.h"
+#include "algorithms/compressionAlgorithm.h"
 #include <fstream>
 #include <iostream>
     

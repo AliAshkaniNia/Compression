@@ -1,16 +1,20 @@
 # File Compression Utility 
 
-This project is a simple file compression utility, currently 
+This project is a simple file compression utility, currently it supports huffman and LZW Algorithms. 
 
 ## Desing 
 UML graph 
 
 ### Huffman algorithm 
+https://www.youtube.com/watch?v=JsTptu56GM8
 
 Serialization : 
 I used a pretty simple and human readable format : 
 
 4 byte (tree len)+ tree + encoded data 
+
+### LZW 
+https://www.youtube.com/watch?v=1KzUikIae6k
 
 ## Usage 
 

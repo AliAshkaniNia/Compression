@@ -1,4 +1,4 @@
-#include "LZWCompression.h"
+#include "algorithms/LZWCompression.h"
 
 void LZWCompression::encode(const std::string& input, std::string& output) {
 
