@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
         compression->decode(inputText, outputText);
     }
 
-    if(compression->saveToFile(inputFileName, inputText) != 0){
+    if(compression->saveToFile(outputFileName, outputText) != 0){
         return 1;
     }
 
