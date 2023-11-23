@@ -5,6 +5,13 @@ This project is a simple file compression utility, currently
 ## Desing 
 UML graph 
 
+### Huffman algorithm 
+
+Serialization : 
+I used a pretty simple and human readable format : 
+
+4 byte (tree len)+ tree + encoded data 
+
 ## Usage 
 
 
