@@ -4,6 +4,7 @@
 #include "algorithms/compressionAlgorithm.h"
 #include "algorithms/LZWCompression.h"
 #include "algorithms/huffmanCompression.h"
+#include "utility/integerToStringEncoder.h"
 
 int main(int argc, char* argv[]) {
     // Command line options
@@ -34,8 +35,12 @@ int main(int argc, char* argv[]) {
 
     std::unique_ptr<CompressionAlgorithm> compression;
 
+
+    std::unique_ptr<Converters::IStringEncoder<uint32_t>> converter = 
+    std::make_unique<Converters::IntegerToStringEncoder<uint32_t>>(false);
+
     if (algorithmName == "huffman") {
-        compression = std::make_unique<HuffmanCompression>();
+        compression = std::make_unique<HuffmanCompression>(std::move(converter));
     } else if (algorithmName == "LZW") {
         compression = std::make_unique<LZWCompression>();
     } else {

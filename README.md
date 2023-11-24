@@ -24,3 +24,6 @@ It also works with pipes.
 
 ## Dependencies 
 This library uses [cxxopts](https://github.com/jarro2783/cxxopts) to parse command line arguments. 
+
+
+C++11 compiler should work fine.
