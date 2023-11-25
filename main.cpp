@@ -68,22 +68,22 @@ int runEngine(const CompressionArgs &args)
 {
     std::string inputContent, outputContent;
 
-    std::unique_ptr<CompressionAlgorithm> compressionAlgorithm;
+    std::unique_ptr<Algorithms::IAlgorithm> compressionAlgorithm;
 
     auto serializer =
         std::make_unique<Serializers::integerToStringSerializer<uint32_t>>(args.human_readable_output);
 
     auto fileHandler = std::make_unique<FileHandlers::UnixFileHandler>();
-    
+
     fileHandler->init(args.inputFileName, args.outputFileName);
 
     if (args.algorithmName == "huffman")
     {
-        compressionAlgorithm = std::make_unique<HuffmanCompression>(std::move(serializer));
+        compressionAlgorithm = std::make_unique<Algorithms::HuffmanCompression>(std::move(serializer));
     }
     else if (args.algorithmName == "LZW")
     {
-        compressionAlgorithm = std::make_unique<LZWCompression>(std::move(serializer));
+        compressionAlgorithm = std::make_unique<Algorithms::LZWCompression>(std::move(serializer));
     }else{
         std::cerr << "Invalid algorithm. Use -h or --help for help." << std::endl;
         return 1;
@@ -94,11 +94,13 @@ int runEngine(const CompressionArgs &args)
 
     if (args.is_encode)
     {
-        compressionAlgorithm->encode(inputContent, outputContent);
+        if(compressionAlgorithm->encode(inputContent, outputContent)!= 0)
+            return 1;
     }
     else
     {
-        compressionAlgorithm->decode(inputContent, outputContent);
+        if(compressionAlgorithm->decode(inputContent, outputContent)!= 0)
+            return 1;
     }
 
     if (fileHandler->save(outputContent) != 0)

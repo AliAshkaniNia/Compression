@@ -5,16 +5,17 @@
 #include <iostream>
 #include <numeric>
 
+using namespace Algorithms;
 LZWCompression::LZWCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer)
     :m_serializer(std::move(serializer)){
 
 }
 
-void LZWCompression::encode(const std::string& input, std::string& output) {
+int LZWCompression::encode(const std::string& input, std::string& output) {
     // Check if an input string is empty
     if (input.empty()) {
         output.clear();
-        return;
+        return 0;
     }
 
     // Initialize dictionary with ASCII characters
@@ -49,14 +50,15 @@ void LZWCompression::encode(const std::string& input, std::string& output) {
     [this](const std::string& a, int b) {
         return a + this->m_serializer->serialize(b);
     });
+    return 0;
 }
 
-void LZWCompression::decode(const std::string& input, std::string& output) {
+int LZWCompression::decode(const std::string& input, std::string& output) {
     output.clear();
 
     // Check if an input string is empty
     if (input.empty()) {
-        return;
+        return 0;
     }
 
     // Initialize inverse dictionary with ASCII characters
@@ -89,7 +91,7 @@ void LZWCompression::decode(const std::string& input, std::string& output) {
             entry = currentString + currentString[0];
         } else {
             std::cerr << "Error in decoding: unexpected key '" << key << "' at index " << i << ".\n";
-            return;
+            return 1;
         }
 
         decodedString += entry;
@@ -98,4 +100,6 @@ void LZWCompression::decode(const std::string& input, std::string& output) {
     }
 
     output = decodedString;
+    return 0;
+
 }

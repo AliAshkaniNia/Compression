@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <iomanip>
 
+using namespace Algorithms;
 HuffmanCompression::HuffmanCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer)
     :m_serializer(std::move(serializer)), 
     huffmanTreeRoot(nullptr){
@@ -53,7 +54,7 @@ void HuffmanCompression::buildHuffmanCodes(HuffmanNode* root, const std::string&
 }
 
 
-void HuffmanCompression::encode(const std::string& input, std::string& output) {
+int HuffmanCompression::encode(const std::string& input, std::string& output) {
     buildHuffmanTree(input);
     buildHuffmanCodes(huffmanTreeRoot, "");
     
@@ -73,6 +74,7 @@ void HuffmanCompression::encode(const std::string& input, std::string& output) {
     ss << '\n';
 
     output = ss.str();
+    return 0;
 }
 // void addNode(HuffmanNode* root, char ch, const std::string &code);
 
@@ -94,7 +96,7 @@ void HuffmanCompression::addNode(HuffmanNode* root, char ch, const std::string &
     node->data = ch;
 }
 
-void HuffmanCompression::decode(const std::string& input, std::string& output) {
+int HuffmanCompression::decode(const std::string& input, std::string& output) {
 
     // finding tree 
     ///TODO: Handle ill-formed input 
@@ -145,5 +147,5 @@ void HuffmanCompression::decode(const std::string& input, std::string& output) {
             currentNode = huffmanTreeRoot;
         }
     }
-
+    return 0;
 }
