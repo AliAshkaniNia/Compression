@@ -3,7 +3,7 @@
 #include <string>
 #include "algorithms/LZWCompression.h"
 #include "algorithms/huffmanCompression.h"
-#include "utility/integerToStringEncoder.h"
+#include "utility/integerToStringSerializer.h"
 #include "utility/unixFileHandler.h"
 
 struct CompressionArgs
@@ -68,21 +68,22 @@ int runEngine(const CompressionArgs &args)
 {
     std::string inputContent, outputContent;
 
-    std::unique_ptr<CompressionAlgorithm> compression;
+    std::unique_ptr<CompressionAlgorithm> compressionAlgorithm;
 
-    auto converter =
-        std::make_unique<Converters::IntegerToStringEncoder<uint32_t>>(args.human_readable_output);
+    auto serializer =
+        std::make_unique<Serializers::integerToStringSerializer<uint32_t>>(args.human_readable_output);
 
     auto fileHandler = std::make_unique<FileHandlers::UnixFileHandler>();
+    
     fileHandler->init(args.inputFileName, args.outputFileName);
 
     if (args.algorithmName == "huffman")
     {
-        compression = std::make_unique<HuffmanCompression>(std::move(converter));
+        compressionAlgorithm = std::make_unique<HuffmanCompression>(std::move(serializer));
     }
     else if (args.algorithmName == "LZW")
     {
-        compression = std::make_unique<LZWCompression>(std::move(converter));
+        compressionAlgorithm = std::make_unique<LZWCompression>(std::move(serializer));
     }else{
         std::cerr << "Invalid algorithm. Use -h or --help for help." << std::endl;
         return 1;
@@ -93,11 +94,11 @@ int runEngine(const CompressionArgs &args)
 
     if (args.is_encode)
     {
-        compression->encode(inputContent, outputContent);
+        compressionAlgorithm->encode(inputContent, outputContent);
     }
     else
     {
-        compression->decode(inputContent, outputContent);
+        compressionAlgorithm->decode(inputContent, outputContent);
     }
 
     if (fileHandler->save(outputContent) != 0)

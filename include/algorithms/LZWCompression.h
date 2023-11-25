@@ -3,7 +3,7 @@
 
 #include "compressionAlgorithm.h"
 #include <memory>
-#include "utility/iStringEncoder.h"
+#include "utility/iStringSerializer.h"
 
 ///TODO: USE NAMESPACE 
 class LZWCompression : public CompressionAlgorithm {
@@ -11,10 +11,10 @@ public:
     void encode(const std::string& input, std::string& output) override;
     void decode(const std::string& input, std::string& output) override;
     LZWCompression() = delete;
-    LZWCompression(std::unique_ptr<Converters::IStringEncoder<uint32_t>> _converter);
+    LZWCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer);
 
 private:
-    std::unique_ptr<Converters::IStringEncoder<uint32_t>> m_converter;
+    std::unique_ptr<Serializers::IStringSerializer<uint32_t>> m_serializer;
 
 };
 

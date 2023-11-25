@@ -1,15 +1,16 @@
 
-#include "iStringEncoder.h"
+
+#ifndef __INTEGER_TO_STRING_SERIALIZER_H__
+#define __INTEGER_TO_STRING_SERIALIZER_H__
+
+#include "iStringSerializer.h"
 #include <string_view>
 #include <iomanip>
 
-#ifndef __INTEGER_TO_STRING_ENCODER_H__
-#define __INTEGER_TO_STRING_ENCODER_H__
-
 /**
- * @brief Encodes and decodes integral values to and from string representations.
+ * @brief serializes and deserializes integral values to and from string representations.
  *
- * The IntegerToStringEncoder class provides functionality to encode a n-bit
+ * The integerToStringSerializer class provides functionality to serialize a n-bit
  * integer into a string representation. It also allows decoding the string back to the
  * original integer value. The encoding can be either human-readable or non-human-readable,
  * depending on the specified option.
@@ -23,19 +24,19 @@
  *  Human-readable string encoding: 12345678
  *  Non-human-readable string encoding: x4Vh
  *
- * IntegerToStringEncoder's implementation is in this header due to its template nature.
+ * integerToStringSerializer's implementation is in this header due to its template nature.
  * This allows the compiler to access the full template definition at compile time.
  * As templates are compiled at the place they are instantiated, not where they are defined.
  *
  */
 
-namespace Converters
+namespace Serializers
 {
     template <typename T>
-    class IntegerToStringEncoder : public IStringEncoder<T>
+    class integerToStringSerializer : public IStringSerializer<T>
     {
     public:
-        IntegerToStringEncoder(bool human_readable) : human_readable(human_readable)
+        integerToStringSerializer(bool human_readable) : human_readable(human_readable)
         {
         }
 
@@ -48,7 +49,7 @@ namespace Converters
          *     str[3] = (static_cast<char>(num & 0xFF));
          *
          */
-        std::string encode(const T &num) override
+        std::string serialize(const T &num) override
         {
             static_assert(std::is_integral<T>::value, "Integral type required");
 
@@ -63,19 +64,19 @@ namespace Converters
                 return ss.str();
             }
 
-            std::string encodedString(sizeof(T), '=');
+            std::string serializedString(sizeof(T), '=');
             for (std::size_t i = 0; i < sizeof(T); ++i)
             {
-                encodedString[sizeof(T) - i - 1] = static_cast<char>((num >> (i * 8)) & 0xFF);
+                serializedString[sizeof(T) - i - 1] = static_cast<char>((num >> (i * 8)) & 0xFF);
             }
-            return encodedString;
+            return serializedString;
         }
 
-        T decode(std::string_view encodedString) override
+        T deserialize(std::string_view serializedString) override
         {
             static_assert(std::is_integral<T>::value, "Integral type required");
 
-            if (encodedString.size() != sizeof(T))
+            if (serializedString.size() != sizeof(T))
             {
                 // Handle error: The string should contain exactly sizeof(T) bytes.
                 return 0;
@@ -87,7 +88,7 @@ namespace Converters
                 for (std::size_t i = 0; i < sizeof(T); ++i)
                 {
                     std::stringstream ss;
-                    ss << std::hex << encodedString.substr(i * 2, 2);
+                    ss << std::hex << serializedString.substr(i * 2, 2);
                     int byte;
                     ss >> byte;
                     result |= static_cast<T>(byte) << ((sizeof(T) - 1 - i) * 8);
@@ -98,7 +99,7 @@ namespace Converters
             T result = 0;
             for (std::size_t i = 0; i < sizeof(T); ++i)
             {
-                result |= static_cast<T>(static_cast<unsigned char>(encodedString[sizeof(T) - 1 - i])) << (i * 8);
+                result |= static_cast<T>(static_cast<unsigned char>(serializedString[sizeof(T) - 1 - i])) << (i * 8);
             }
             return result;
         }

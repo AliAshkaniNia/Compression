@@ -5,14 +5,14 @@
 #include <unordered_map>
 #include <queue>
 #include <memory>
-#include "utility/iStringEncoder.h"
+#include "utility/iStringSerializer.h"
 
 class HuffmanCompression : public CompressionAlgorithm {
 public:
     void encode(const std::string& input, std::string& output) override;
     void decode(const std::string& input, std::string& output) override;
     HuffmanCompression() = delete;
-    HuffmanCompression(std::unique_ptr<Converters::IStringEncoder<uint32_t>> _converter);
+    HuffmanCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer);
 
 private:
     struct HuffmanNode {
@@ -41,7 +41,7 @@ private:
     HuffmanNode* huffmanTreeRoot;
     std::unordered_map<char, std::string> huffmanCodes;
 
-    std::unique_ptr<Converters::IStringEncoder<uint32_t>> m_converter;
+    std::unique_ptr<Serializers::IStringSerializer<uint32_t>> m_serializer;
 };
 
 

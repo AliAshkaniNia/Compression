@@ -6,8 +6,8 @@
 #include <stdint.h>
 #include <iomanip>
 
-HuffmanCompression::HuffmanCompression(std::unique_ptr<Converters::IStringEncoder<uint32_t>> _converter)
-    :m_converter(std::move(_converter)), 
+HuffmanCompression::HuffmanCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer)
+    :m_serializer(std::move(serializer)), 
     huffmanTreeRoot(nullptr){
 
 }
@@ -63,7 +63,7 @@ void HuffmanCompression::encode(const std::string& input, std::string& output) {
         ss_tree << entry.first << entry.second << ' ';
     }
 
-    ss<<m_converter->encode(ss_tree.str().length()) << "\n";
+    ss<<m_serializer->serialize(ss_tree.str().length()) << "\n";
     ss << ss_tree.str() << "\n";
 
     for (char ch : input) {
@@ -104,7 +104,7 @@ void HuffmanCompression::decode(const std::string& input, std::string& output) {
     std::string tree_len_str = input.substr(0, 4);
 
 
-    uint32_t tree_len = m_converter->decode(tree_len_str);// decode_uint32(tree_len_str);
+    uint32_t tree_len = m_serializer->deserialize(tree_len_str);// decode_uint32(tree_len_str);
 
     std::string huffman_tree = input.substr(4+1, tree_len);
     std::string encoded_string = input.substr(4+1+tree_len+1);

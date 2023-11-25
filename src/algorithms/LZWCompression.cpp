@@ -5,8 +5,8 @@
 #include <iostream>
 #include <numeric>
 
-LZWCompression::LZWCompression(std::unique_ptr<Converters::IStringEncoder<uint32_t>> _converter)
-    :m_converter(std::move(_converter)){
+LZWCompression::LZWCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer)
+    :m_serializer(std::move(serializer)){
 
 }
 
@@ -47,7 +47,7 @@ void LZWCompression::encode(const std::string& input, std::string& output) {
     // Convert the encoded values into a string
     output = std::accumulate(encodedValues.begin(), encodedValues.end(), std::string{},
     [this](const std::string& a, int b) {
-        return a + this->m_converter->encode(b);
+        return a + this->m_serializer->serialize(b);
     });
 }
 
@@ -72,7 +72,7 @@ void LZWCompression::decode(const std::string& input, std::string& output) {
     /// TODO: do not use fixed 4 bytes  
 
     for (size_t i = 0; i < input.size(); i += 4) {
-        decodedValues.push_back(m_converter->decode(input.substr(i, 4)));
+        decodedValues.push_back(m_serializer->deserialize(input.substr(i, 4)));
     }
 
     std::string currentString = inverseDictionary[decodedValues[0]];
