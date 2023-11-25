@@ -114,3 +114,4 @@ if (USE_UBSAN AND USE_UBSAN)
 endif ()
 
 include_directories(cxxopts)
+add_subdirectory(tests)

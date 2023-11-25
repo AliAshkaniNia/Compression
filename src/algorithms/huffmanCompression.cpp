@@ -38,6 +38,22 @@ void Algorithms::HuffmanCompression::createTree(std::string_view  input) {
 
         pq.push(combinedNode);
     }
+
+    // Handle special case where there's only one unique character.
+    // It generates a node with the character on the left and a dummy node 
+    // on the right with the same frequency. 
+    // This would give the character a Huffman code of '0', and the dummy node 
+    // a code of '1' which will never be used.
+
+    if (pq.size() == 1 && frequencyMap.size() == 1) {
+        HuffmanTreeNode* node = pq.top();
+        pq.pop();
+        HuffmanTreeNode* dummyNode = new HuffmanTreeNode('\0', node->frequency);
+        HuffmanTreeNode* combinedNode = new HuffmanTreeNode('\0', node->frequency + dummyNode->frequency, node, dummyNode);
+
+        pq.push(combinedNode);
+    }
+
     // Deleting  previous tree to prevent memory leak
     if(huffmanTreeRoot != nullptr){
         deleteTree(huffmanTreeRoot);
@@ -58,6 +74,11 @@ void Algorithms::HuffmanCompression::createCodes(HuffmanTreeNode* root, const st
 }
 
 int Algorithms::HuffmanCompression::encode(std::string_view input, std::string& output) {
+    output.clear();
+
+    if (input.empty()) {
+        return 0;
+    }
     createTree(input);
     createCodes(huffmanTreeRoot, "");
     
@@ -128,6 +149,9 @@ int Algorithms::HuffmanCompression::decode(std::string_view  input, std::string&
 
     // finding sections 
     output.clear();
+    if (input.empty()) {
+        return 0;
+    }
     std::size_t serialized_word_size = m_serializer->getSerializedWordSize();
     std::string tree_len_str, huffman_tree, encoded_string;
     try{
