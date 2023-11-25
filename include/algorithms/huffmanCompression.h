@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <queue>
 #include <memory>
+#include <string_view>
 #include "utility/iStringSerializer.h"
 namespace Algorithms
 {
@@ -12,24 +13,25 @@ namespace Algorithms
     class HuffmanCompression : public IAlgorithm
     {
     public:
-        int encode(const std::string &input, std::string &output) override;
-        int decode(const std::string &input, std::string &output) override;
+        int encode(std::string_view input, std::string &output) override;
+        int decode(std::string_view input, std::string &output) override;
         HuffmanCompression() = delete;
         HuffmanCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer);
         ~HuffmanCompression();
     private:
-        struct HuffmanNode
+        struct HuffmanTreeNode
         {
             char data;
             int frequency;
-            HuffmanNode *left;
-            HuffmanNode *right;
+            ///TODO: Use smart pointers instead of these raw ones
+            HuffmanTreeNode *left;
+            HuffmanTreeNode *right;
 
-            HuffmanNode(char data, unsigned frequency) : data(data), frequency(frequency), left(nullptr), right(nullptr) {}
-            HuffmanNode(char data, unsigned frequency,
-                        HuffmanNode *left, HuffmanNode *right) : data(data), frequency(frequency), left(left), right(right) {}
+            HuffmanTreeNode(char data, unsigned frequency) : data(data), frequency(frequency), left(nullptr), right(nullptr) {}
+            HuffmanTreeNode(char data, unsigned frequency,
+                        HuffmanTreeNode *left, HuffmanTreeNode *right) : data(data), frequency(frequency), left(left), right(right) {}
 
-            bool operator<(const HuffmanNode &other) const
+            bool operator<(const HuffmanTreeNode &other) const
             {
                 // Notice the '>' here. 
                 // This is because priority_queue uses this operator to order 
@@ -38,15 +40,17 @@ namespace Algorithms
                 return frequency > other.frequency; 
             }
         };
-        void deleteTree(HuffmanNode* root);
-        void buildHuffmanTree(const std::string &input);
-        void buildHuffmanCodes(HuffmanNode *root, const std::string &code);
-        void encodeTree(HuffmanNode *root, std::string &encodedTree);
-        void decodeTree(const std::string &encodedTree, size_t &index, HuffmanNode *&root);
+        void createTree(std::string_view input);
+        void createCodes(HuffmanTreeNode *root, const std::string &code);
 
-        void addNode(HuffmanNode *root, char ch, const std::string &code);
+        void deleteTree(HuffmanTreeNode* root);
 
-        HuffmanNode *huffmanTreeRoot;
+        void encodeTree(HuffmanTreeNode *root, std::string &encodedTree);
+        void parseTree(std::string_view encodedTree);
+
+        void addTreeNode(HuffmanTreeNode *root, char ch, std::string_view code);
+
+        HuffmanTreeNode *huffmanTreeRoot;
         std::unordered_map<char, std::string> huffmanCodes;
 
         std::unique_ptr<Serializers::IStringSerializer<uint32_t>> m_serializer;

@@ -10,8 +10,8 @@ namespace Algorithms
     class LZWCompression : public IAlgorithm
     {
     public:
-        int encode(const std::string &input, std::string &output) override;
-        int decode(const std::string &input, std::string &output) override;
+        int encode(std::string_view input, std::string &output) override;
+        int decode(std::string_view input, std::string &output) override;
         LZWCompression() = delete;
         LZWCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer);
 

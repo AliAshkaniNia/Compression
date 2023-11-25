@@ -13,7 +13,7 @@ HuffmanCompression::HuffmanCompression(std::unique_ptr<Serializers::IStringSeria
 
 }
 
-void HuffmanCompression::buildHuffmanTree(const std::string& input) {
+void HuffmanCompression::createTree(std::string_view  input) {
     // Count the frequency of each character in the input string
     std::unordered_map<char, unsigned> frequencyMap;
     for (char c : input) {
@@ -21,20 +21,19 @@ void HuffmanCompression::buildHuffmanTree(const std::string& input) {
     }
 
     // Build the priority queue of Huffman nodes
-    // std::priority_queue<HuffmanNode*, std::vector<HuffmanNode*>, std::less<>> pq;
-    std::priority_queue<HuffmanNode*> pq;
+    std::priority_queue<HuffmanTreeNode*> pq;
     for (const auto& pair : frequencyMap) {
-        pq.push(new HuffmanNode(pair.first, pair.second));
+        pq.push(new HuffmanTreeNode(pair.first, pair.second));
     }
 
     // Build the Huffman tree
     while (pq.size() > 1) {
-        HuffmanNode* left = pq.top();
+        HuffmanTreeNode* left = pq.top();
         pq.pop();
-        HuffmanNode* right = pq.top();
+        HuffmanTreeNode* right = pq.top();
         pq.pop();
 
-        HuffmanNode* combinedNode = new HuffmanNode('\0', left->frequency + right->frequency, left, right);
+        HuffmanTreeNode* combinedNode = new HuffmanTreeNode('\0', left->frequency + right->frequency, left, right);
 
         pq.push(combinedNode);
     }
@@ -46,64 +45,88 @@ void HuffmanCompression::buildHuffmanTree(const std::string& input) {
     pq.pop();
 }
 
-void HuffmanCompression::buildHuffmanCodes(HuffmanNode* root, const std::string& code) {
+void HuffmanCompression::createCodes(HuffmanTreeNode* root, const std::string& code) {
     if (!root) {
         return;
     }
     if (!root->left && !root->right) {
         huffmanCodes[root->data] = code;
     }
-    buildHuffmanCodes(root->left, code + '0');
-    buildHuffmanCodes(root->right, code + '1');
+    createCodes(root->left, code + '0');
+    createCodes(root->right, code + '1');
 }
 
-
-int HuffmanCompression::encode(const std::string& input, std::string& output) {
-    buildHuffmanTree(input);
-    buildHuffmanCodes(huffmanTreeRoot, "");
+int HuffmanCompression::encode(std::string_view input, std::string& output) {
+    createTree(input);
+    createCodes(huffmanTreeRoot, "");
     
-    std::stringstream ss,ss_tree;
+    std::stringstream encodedStream, treeStream;
 
     for (const auto& entry : huffmanCodes) {
-        ss_tree << entry.first << entry.second << ' ';
+        treeStream << entry.first << entry.second << ' ';
     }
 
-    ss<<m_serializer->serialize(ss_tree.str().length()) << "\n";
-    ss << ss_tree.str() << "\n";
+    encodedStream << m_serializer->serialize(treeStream.str().length()) << "\n";
+    encodedStream << treeStream.str() << "\n";
 
-    for (char ch : input) {
-        ss << huffmanCodes[ch];
+    for (const auto& ch : input) {
+        encodedStream << huffmanCodes[ch];
     }
     // a trailing new line just to look nice
-    ss << '\n';
+    encodedStream << '\n';
 
-    output = ss.str();
+    output = encodedStream.str();
     return 0;
 }
-// void addNode(HuffmanNode* root, char ch, const std::string &code);
 
-void HuffmanCompression::addNode(HuffmanNode* root, char ch, const std::string &code) {
-    HuffmanNode* node = root;
+void HuffmanCompression::addTreeNode(HuffmanTreeNode* root, char ch, std::string_view code) {
+    HuffmanTreeNode* node = root;
     for(auto &c : code) {
         if(c == '0') {
             if (!node->left) {
-                node->left = new HuffmanNode('\0', 0);
+                node->left = new HuffmanTreeNode('\0', 0);
             }
             node = node->left;
         } else {
             if (!node->right) {
-                node->right = new HuffmanNode('\0', 0);
+                node->right = new HuffmanTreeNode('\0', 0);
             }
             node = node->right;
         }
     }
     node->data = ch;
 }
+void HuffmanCompression::parseTree(std::string_view encodedTree) {
+    char decodedChar;
+    std::string huffmanCode;
 
-int HuffmanCompression::decode(const std::string& input, std::string& output) {
+    // Deleting  previous tree to prevent memory leak
+    if(huffmanTreeRoot != nullptr){
+        deleteTree(huffmanTreeRoot);
+    }
+    huffmanTreeRoot = new HuffmanTreeNode('\0', 0);
+  
+    size_t index = 0;
+    while (index < encodedTree.size()) {
+        decodedChar = encodedTree[index];
+        index++;
+        
+        huffmanCode = "";
+        while (index < encodedTree.size() && encodedTree[index] != ' ') {
+            huffmanCode += encodedTree[index];
+            index++;
+        }
+        
+        addTreeNode(huffmanTreeRoot, decodedChar, huffmanCode);
 
-    // finding tree 
-    output="";
+        index++; // skip over space
+    }
+}
+
+int HuffmanCompression::decode(std::string_view  input, std::string& output) {
+
+    // finding sections 
+    output.clear();
     std::size_t serialized_word_size = m_serializer->getSerializedWordSize();
     std::string tree_len_str, huffman_tree, encoded_string;
     try{
@@ -121,36 +144,14 @@ int HuffmanCompression::decode(const std::string& input, std::string& output) {
         std::cerr<< "ill-formed input file for decoding\n";
         return 1;
     }
+
+    parseTree(huffman_tree);
+
+    HuffmanTreeNode* currentNode = huffmanTreeRoot;
+    
     // Deleting trailing new line
     encoded_string.pop_back();
 
-    // Parsing tree 
-    char character;
-    std::string code;
-
-    // Deleting  previous tree to prevent memory leak
-    if(huffmanTreeRoot != nullptr){
-        deleteTree(huffmanTreeRoot);
-    }
-    huffmanTreeRoot = new HuffmanNode('\0', 0);
-  
-    int i = 0;
-    while (i < huffman_tree.size()) {
-        character = huffman_tree[i];
-        i++;
-        
-        code = "";
-        while (i < huffman_tree.size() && huffman_tree[i] != ' ') {
-            code += huffman_tree[i];
-            i++;
-        }
-        
-        addNode(huffmanTreeRoot, character, code);
-
-        i++; // skip over space
-    }
-
-    HuffmanNode* currentNode = huffmanTreeRoot;
     //decoding output
     for (char bit : encoded_string) {
         if (bit == '0') {
@@ -167,7 +168,7 @@ int HuffmanCompression::decode(const std::string& input, std::string& output) {
     return 0;
 }
 
-void HuffmanCompression::deleteTree(HuffmanNode* root){
+void HuffmanCompression::deleteTree(HuffmanTreeNode* root){
     if(root==NULL) return;
 
     if(root->left) deleteTree(root->left);

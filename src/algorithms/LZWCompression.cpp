@@ -11,7 +11,7 @@ LZWCompression::LZWCompression(std::unique_ptr<Serializers::IStringSerializer<ui
 
 }
 
-int LZWCompression::encode(const std::string& input, std::string& output) {
+int LZWCompression::encode(std::string_view  input, std::string& output) {
     // Check if an input string is empty
     if (input.empty()) {
         output.clear();
@@ -53,7 +53,7 @@ int LZWCompression::encode(const std::string& input, std::string& output) {
     return 0;
 }
 
-int LZWCompression::decode(const std::string& input, std::string& output) {
+int LZWCompression::decode(std::string_view  input, std::string& output) {
     output.clear();
 
     // Check if an input string is empty
