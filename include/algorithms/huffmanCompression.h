@@ -16,7 +16,7 @@ namespace Algorithms
         int decode(const std::string &input, std::string &output) override;
         HuffmanCompression() = delete;
         HuffmanCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer);
-
+        ~HuffmanCompression();
     private:
         struct HuffmanNode
         {
@@ -29,12 +29,16 @@ namespace Algorithms
             HuffmanNode(char data, unsigned frequency,
                         HuffmanNode *left, HuffmanNode *right) : data(data), frequency(frequency), left(left), right(right) {}
 
-            bool operator>(const HuffmanNode &other) const
+            bool operator<(const HuffmanNode &other) const
             {
-                return frequency > other.frequency;
+                // Notice the '>' here. 
+                // This is because priority_queue uses this operator to order 
+                // the elements in reverse, creating a min heap.
+
+                return frequency > other.frequency; 
             }
         };
-
+        void deleteTree(HuffmanNode* root);
         void buildHuffmanTree(const std::string &input);
         void buildHuffmanCodes(HuffmanNode *root, const std::string &code);
         void encodeTree(HuffmanNode *root, std::string &encodedTree);

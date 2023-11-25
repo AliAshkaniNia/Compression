@@ -12,6 +12,7 @@ HuffmanCompression::HuffmanCompression(std::unique_ptr<Serializers::IStringSeria
     huffmanTreeRoot(nullptr){
 
 }
+
 void HuffmanCompression::buildHuffmanTree(const std::string& input) {
     // Count the frequency of each character in the input string
     std::unordered_map<char, unsigned> frequencyMap;
@@ -20,26 +21,29 @@ void HuffmanCompression::buildHuffmanTree(const std::string& input) {
     }
 
     // Build the priority queue of Huffman nodes
-    std::priority_queue<HuffmanNode, std::vector<HuffmanNode>, std::greater<>> pq;
+    // std::priority_queue<HuffmanNode*, std::vector<HuffmanNode*>, std::less<>> pq;
+    std::priority_queue<HuffmanNode*> pq;
     for (const auto& pair : frequencyMap) {
-        pq.push(HuffmanNode(pair.first, pair.second));
+        pq.push(new HuffmanNode(pair.first, pair.second));
     }
 
     // Build the Huffman tree
     while (pq.size() > 1) {
-        HuffmanNode* left = new HuffmanNode(pq.top());
+        HuffmanNode* left = pq.top();
         pq.pop();
-        HuffmanNode* right = new HuffmanNode(pq.top());
+        HuffmanNode* right = pq.top();
         pq.pop();
 
-        HuffmanNode* combinedNode = new HuffmanNode('\0', left->frequency + right->frequency);
-        combinedNode->left = left;
-        combinedNode->right = right;
+        HuffmanNode* combinedNode = new HuffmanNode('\0', left->frequency + right->frequency, left, right);
 
-        pq.push(*combinedNode);
+        pq.push(combinedNode);
     }
-
-    huffmanTreeRoot = new HuffmanNode(pq.top());
+    // Deleting  previous tree to prevent memory leak
+    if(huffmanTreeRoot != nullptr){
+        deleteTree(huffmanTreeRoot);
+    }
+    huffmanTreeRoot = pq.top();
+    pq.pop();
 }
 
 void HuffmanCompression::buildHuffmanCodes(HuffmanNode* root, const std::string& code) {
@@ -123,6 +127,11 @@ int HuffmanCompression::decode(const std::string& input, std::string& output) {
     // Parsing tree 
     char character;
     std::string code;
+
+    // Deleting  previous tree to prevent memory leak
+    if(huffmanTreeRoot != nullptr){
+        deleteTree(huffmanTreeRoot);
+    }
     huffmanTreeRoot = new HuffmanNode('\0', 0);
   
     int i = 0;
@@ -156,4 +165,16 @@ int HuffmanCompression::decode(const std::string& input, std::string& output) {
         }
     }
     return 0;
+}
+
+void HuffmanCompression::deleteTree(HuffmanNode* root){
+    if(root==NULL) return;
+
+    if(root->left) deleteTree(root->left);
+    if(root->right) deleteTree(root->right);
+    delete root;
+}
+
+HuffmanCompression::~HuffmanCompression(){
+    deleteTree(huffmanTreeRoot);
 }
