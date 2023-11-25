@@ -5,6 +5,7 @@
 #include "algorithms/LZWCompression.h"
 #include "algorithms/huffmanCompression.h"
 #include "utility/integerToStringEncoder.h"
+#include "utility/unixFileHandler.h"
 
 int main(int argc, char* argv[]) {
     // Command line options
@@ -48,6 +49,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    auto fileHandler =  std::make_unique<FileHandlers::UnixFileHandler>();
+
     bool encode = result.count("encode") > 0;
     std::string inputFileName;
     std::string outputFileName;
@@ -60,10 +63,10 @@ int main(int argc, char* argv[]) {
     if (result.count("output")) {
         outputFileName = result["output"].as<std::string>();
     }
-
-    if(compression->loadFromFile(inputFileName, inputText) != 0){
+    fileHandler->init(inputFileName, outputFileName);
+    
+    if(fileHandler->load(inputText) != 0)
         return 1;
-    }
 
     if(encode){
         compression->encode(inputText, outputText);
@@ -71,9 +74,8 @@ int main(int argc, char* argv[]) {
         compression->decode(inputText, outputText);
     }
 
-    if(compression->saveToFile(outputFileName, outputText) != 0){
+    if(fileHandler->save(outputText) != 0)
         return 1;
-    }
 
     return 0;
 }
