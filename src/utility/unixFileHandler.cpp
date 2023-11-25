@@ -8,12 +8,12 @@ void FileHandlers::UnixFileHandler::init(std::string_view input_file_path, std::
 }
 
 int FileHandlers::UnixFileHandler::load(std::string& content) {
-    std::istream* input;
+    std::istream* input = nullptr;
     std::ifstream inputFile;
     if (!input_file_path.empty()) {
         inputFile.open(input_file_path);
         if (!inputFile) {
-            std::cerr << "Error opening input file: " << input_file_path << std::endl;
+            std::cerr << "Error opening input file: " << input_file_path << '\n';
             return 1;
         }
         input = &inputFile;
@@ -32,12 +32,12 @@ int FileHandlers::UnixFileHandler::load(std::string& content) {
 }
 
 int FileHandlers::UnixFileHandler::save(std::string_view content){
-    std::ostream* output;
+    std::ostream* output = nullptr;
     std::ofstream outputFile;
     if (!output_file_path.empty()) {
         outputFile.open(output_file_path);
         if (!outputFile) {
-            std::cerr << "Error opening output file: " << output_file_path << std::endl;
+            std::cerr << "Error opening output file: " << output_file_path << '\n';
             return 1;
         }
         output = &outputFile;

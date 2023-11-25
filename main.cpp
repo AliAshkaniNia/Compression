@@ -26,14 +26,14 @@ int parseArguments(int argc, char *argv[], CompressionArgs &args)
 
     if (result.count("help"))
     {
-        std::cout << options.help() << std::endl;
+        std::cout << options.help() << '\n';
         return 1;
     }
 
     if (!(result.count("encode") ^ result.count("decode")))
     {
-        std::cerr << "You must choose one between encode and decode." << std::endl;
-        std::cout << options.help() << std::endl;
+        std::cerr << "You must choose one between encode and decode." << '\n';
+        std::cout << options.help() << '\n';
         return 1;
     }
 
@@ -44,7 +44,7 @@ int parseArguments(int argc, char *argv[], CompressionArgs &args)
 
     if (args.algorithmName != "huffman" && args.algorithmName != "LZW")
     {
-        std::cerr << "Invalid algorithm. Use -h or --help for help." << std::endl;
+        std::cerr << "Invalid algorithm. Use -h or --help for help." << '\n';
         return 1;
     }
 
@@ -85,7 +85,7 @@ int runEngine(const CompressionArgs &args)
     {
         compressionAlgorithm = std::make_unique<Algorithms::LZWCompression>(std::move(serializer));
     }else{
-        std::cerr << "Invalid algorithm. Use -h or --help for help." << std::endl;
+        std::cerr << "Invalid algorithm. Use -h or --help for help." << '\n';
         return 1;
     }
 

@@ -1,19 +1,20 @@
 #include "algorithms/huffmanCompression.h"
-#include <vector>
-#include <functional>
-#include <sstream>
-#include <iostream>
-#include <stdint.h>
-#include <iomanip>
 
-using namespace Algorithms;
-HuffmanCompression::HuffmanCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer)
-    :m_serializer(std::move(serializer)), 
-    huffmanTreeRoot(nullptr){
+#include <cstdint>
+#include <functional>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <vector>
+
+
+Algorithms::HuffmanCompression::HuffmanCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer)
+    :huffmanTreeRoot(nullptr),
+    m_serializer(std::move(serializer)){
 
 }
 
-void HuffmanCompression::createTree(std::string_view  input) {
+void Algorithms::HuffmanCompression::createTree(std::string_view  input) {
     // Count the frequency of each character in the input string
     std::unordered_map<char, unsigned> frequencyMap;
     for (char c : input) {
@@ -45,7 +46,7 @@ void HuffmanCompression::createTree(std::string_view  input) {
     pq.pop();
 }
 
-void HuffmanCompression::createCodes(HuffmanTreeNode* root, const std::string& code) {
+void Algorithms::HuffmanCompression::createCodes(HuffmanTreeNode* root, const std::string& code) {
     if (!root) {
         return;
     }
@@ -56,7 +57,7 @@ void HuffmanCompression::createCodes(HuffmanTreeNode* root, const std::string& c
     createCodes(root->right, code + '1');
 }
 
-int HuffmanCompression::encode(std::string_view input, std::string& output) {
+int Algorithms::HuffmanCompression::encode(std::string_view input, std::string& output) {
     createTree(input);
     createCodes(huffmanTreeRoot, "");
     
@@ -79,7 +80,7 @@ int HuffmanCompression::encode(std::string_view input, std::string& output) {
     return 0;
 }
 
-void HuffmanCompression::addTreeNode(HuffmanTreeNode* root, char ch, std::string_view code) {
+void Algorithms::HuffmanCompression::addTreeNode(HuffmanTreeNode* root, char ch, std::string_view code) {
     HuffmanTreeNode* node = root;
     for(auto &c : code) {
         if(c == '0') {
@@ -96,8 +97,8 @@ void HuffmanCompression::addTreeNode(HuffmanTreeNode* root, char ch, std::string
     }
     node->data = ch;
 }
-void HuffmanCompression::parseTree(std::string_view encodedTree) {
-    char decodedChar;
+void Algorithms::HuffmanCompression::parseTree(std::string_view encodedTree) {
+
     std::string huffmanCode;
 
     // Deleting  previous tree to prevent memory leak
@@ -108,7 +109,7 @@ void HuffmanCompression::parseTree(std::string_view encodedTree) {
   
     size_t index = 0;
     while (index < encodedTree.size()) {
-        decodedChar = encodedTree[index];
+        char decodedChar = encodedTree[index];
         index++;
         
         huffmanCode = "";
@@ -123,7 +124,7 @@ void HuffmanCompression::parseTree(std::string_view encodedTree) {
     }
 }
 
-int HuffmanCompression::decode(std::string_view  input, std::string& output) {
+int Algorithms::HuffmanCompression::decode(std::string_view  input, std::string& output) {
 
     // finding sections 
     output.clear();
@@ -155,12 +156,15 @@ int HuffmanCompression::decode(std::string_view  input, std::string& output) {
     //decoding output
     for (char bit : encoded_string) {
         if (bit == '0') {
-            currentNode = currentNode->left;
+            if (currentNode && currentNode->left)
+                currentNode = currentNode->left;
         } else {
-            currentNode = currentNode->right;
+            if (currentNode && currentNode->right) 
+                currentNode = currentNode->right;
         }
 
-        if (!currentNode->left && !currentNode->right) {
+        
+        if ( currentNode && !currentNode->left && !currentNode->right) {
             output += currentNode->data;
             currentNode = huffmanTreeRoot;
         }
@@ -168,7 +172,7 @@ int HuffmanCompression::decode(std::string_view  input, std::string& output) {
     return 0;
 }
 
-void HuffmanCompression::deleteTree(HuffmanTreeNode* root){
+void Algorithms::HuffmanCompression::deleteTree(HuffmanTreeNode* root){
     if(root==NULL) return;
 
     if(root->left) deleteTree(root->left);
@@ -176,6 +180,6 @@ void HuffmanCompression::deleteTree(HuffmanTreeNode* root){
     delete root;
 }
 
-HuffmanCompression::~HuffmanCompression(){
+Algorithms::HuffmanCompression::~HuffmanCompression(){
     deleteTree(huffmanTreeRoot);
 }

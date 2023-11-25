@@ -36,7 +36,7 @@ namespace Serializers
     class integerToStringSerializer : public IStringSerializer<T>
     {
     public:
-        integerToStringSerializer(bool human_readable) : human_readable(human_readable)
+        explicit integerToStringSerializer(bool human_readable) : human_readable(human_readable)
         {
             serialized_word_size = human_readable? sizeof(T)*2: sizeof(T);
         }

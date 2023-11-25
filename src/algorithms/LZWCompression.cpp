@@ -1,17 +1,17 @@
 #include "algorithms/LZWCompression.h"
 
-#include <map>
-#include <vector>
+#include <cstdint>
 #include <iostream>
+#include <map>
 #include <numeric>
+#include <vector>
 
-using namespace Algorithms;
-LZWCompression::LZWCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer)
+Algorithms::LZWCompression::LZWCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer)
     :m_serializer(std::move(serializer)){
 
 }
 
-int LZWCompression::encode(std::string_view  input, std::string& output) {
+int Algorithms::LZWCompression::encode(std::string_view  input, std::string& output) {
     // Check if an input string is empty
     if (input.empty()) {
         output.clear();
@@ -53,7 +53,7 @@ int LZWCompression::encode(std::string_view  input, std::string& output) {
     return 0;
 }
 
-int LZWCompression::decode(std::string_view  input, std::string& output) {
+int Algorithms::LZWCompression::decode(std::string_view  input, std::string& output) {
     output.clear();
 
     // Check if an input string is empty

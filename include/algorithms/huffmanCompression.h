@@ -16,7 +16,7 @@ namespace Algorithms
         int encode(std::string_view input, std::string &output) override;
         int decode(std::string_view input, std::string &output) override;
         HuffmanCompression() = delete;
-        HuffmanCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer);
+        explicit HuffmanCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer);
         ~HuffmanCompression();
     private:
         struct HuffmanTreeNode

@@ -13,7 +13,7 @@ namespace Algorithms
         int encode(std::string_view input, std::string &output) override;
         int decode(std::string_view input, std::string &output) override;
         LZWCompression() = delete;
-        LZWCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer);
+        explicit LZWCompression(std::unique_ptr<Serializers::IStringSerializer<uint32_t>> serializer);
 
     private:
         std::unique_ptr<Serializers::IStringSerializer<uint32_t>> m_serializer;
