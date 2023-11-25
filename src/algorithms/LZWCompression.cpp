@@ -70,11 +70,14 @@ int LZWCompression::decode(const std::string& input, std::string& output) {
 
     std::vector<int> decodedValues;
 
-    // Decode every 4-byte chunk of input
-    /// TODO: do not use fixed 4 bytes  
-
-    for (size_t i = 0; i < input.size(); i += 4) {
-        decodedValues.push_back(m_serializer->deserialize(input.substr(i, 4)));
+    std::size_t serialized_word_size = m_serializer->getSerializedWordSize();
+    for (size_t i = 0; i < input.size(); i += serialized_word_size) {
+        try{
+            decodedValues.push_back(m_serializer->deserialize(input.substr(i, serialized_word_size)));
+        }catch(...){
+            std::cerr << "Something went wrong with deserialization \n";
+            return 1;
+        }
     }
 
     std::string currentString = inverseDictionary[decodedValues[0]];

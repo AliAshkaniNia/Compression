@@ -99,20 +99,28 @@ void HuffmanCompression::addNode(HuffmanNode* root, char ch, const std::string &
 int HuffmanCompression::decode(const std::string& input, std::string& output) {
 
     // finding tree 
-    ///TODO: Handle ill-formed input 
-    ///TODO: human readable needs to be fixed 
-    ///TODO: Fixed positions should ne deifned elesewhere
     output="";
-    std::string tree_len_str = input.substr(0, 4);
+    std::size_t serialized_word_size = m_serializer->getSerializedWordSize();
+    std::string tree_len_str, huffman_tree, encoded_string;
+    try{
+        // The file begins with serialized_word_size bytes containing the tree length
+        tree_len_str = input.substr(0, serialized_word_size);
 
+        uint32_t tree_len = m_serializer->deserialize(tree_len_str); 
+        
+        //The tree length is followed by an additional '\n', so to reach the original tree, we should start from 'serialized_word_size+1'.
+        huffman_tree = input.substr(serialized_word_size+1, tree_len);
 
-    uint32_t tree_len = m_serializer->deserialize(tree_len_str);// decode_uint32(tree_len_str);
-
-    std::string huffman_tree = input.substr(4+1, tree_len);
-    std::string encoded_string = input.substr(4+1+tree_len+1);
-
+        // Tree encoding is followed by an additional '\n', so to reach the encoded data, we need to start from 'serialized_word_size + 1 + tree_len + 1'.
+        encoded_string = input.substr(serialized_word_size+1+tree_len+1);
+    }catch(...){
+        std::cerr<< "ill-formed input file for decoding\n";
+        return 1;
+    }
+    // Deleting trailing new line
     encoded_string.pop_back();
 
+    // Parsing tree 
     char character;
     std::string code;
     huffmanTreeRoot = new HuffmanNode('\0', 0);
@@ -134,7 +142,7 @@ int HuffmanCompression::decode(const std::string& input, std::string& output) {
     }
 
     HuffmanNode* currentNode = huffmanTreeRoot;
-
+    //decoding output
     for (char bit : encoded_string) {
         if (bit == '0') {
             currentNode = currentNode->left;

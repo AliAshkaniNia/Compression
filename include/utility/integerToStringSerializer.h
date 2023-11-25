@@ -38,6 +38,7 @@ namespace Serializers
     public:
         integerToStringSerializer(bool human_readable) : human_readable(human_readable)
         {
+            serialized_word_size = human_readable? sizeof(T)*2: sizeof(T);
         }
 
         /**
@@ -75,15 +76,19 @@ namespace Serializers
         T deserialize(std::string_view serializedString) override
         {
             static_assert(std::is_integral<T>::value, "Integral type required");
-
-            if (serializedString.size() != sizeof(T))
-            {
-                // Handle error: The string should contain exactly sizeof(T) bytes.
-                return 0;
-            }
-
+    
             if (human_readable)
             {
+                if (serializedString.size() != serialized_word_size)
+                {
+                    std::cerr<<"Error in deserializeing, The string "<< serializedString <<" should contain exactly " << serialized_word_size <<" bytes\n";
+                    std::cerr<<"Try turning the human-readable option off \n";
+                    throw std::invalid_argument("");
+
+                    // Handle error: The string should contain exactly sizeof(T) bytes.
+                    // return 0;
+                }
+
                 T result = 0;
                 for (std::size_t i = 0; i < sizeof(T); ++i)
                 {
@@ -95,6 +100,13 @@ namespace Serializers
                 }
                 return result;
             }
+            
+            if (serializedString.size() != serialized_word_size)
+            {
+                std::cerr<<"Error in deserializeing, The string "<< serializedString <<" should contain exactly " << serialized_word_size <<" bytes\n";
+                std::cerr<<"Try turning the human-readable option on \n";
+                throw std::invalid_argument("");
+            }
 
             T result = 0;
             for (std::size_t i = 0; i < sizeof(T); ++i)
@@ -103,14 +115,13 @@ namespace Serializers
             }
             return result;
         }
-
-        bool is_human_readable() const
-        {
-            return human_readable;
+        size_t getSerializedWordSize() override{
+            return serialized_word_size;
         }
 
     private:
         bool human_readable;
+        size_t serialized_word_size;
     };
 
 };
