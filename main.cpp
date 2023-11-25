@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     if (algorithmName == "huffman") {
         compression = std::make_unique<HuffmanCompression>(std::move(converter));
     } else if (algorithmName == "LZW") {
-        compression = std::make_unique<LZWCompression>();
+        compression = std::make_unique<LZWCompression>(std::move(converter));
     } else {
         std::cerr << "Invalid algorithm. Use -h or --help for help." << std::endl;
         return 1;

@@ -26,4 +26,4 @@ It also works with pipes.
 This library uses [cxxopts](https://github.com/jarro2783/cxxopts) to parse command line arguments. 
 
 
-C++11 compiler should work fine.
+C++17 compiler should work fine. (string_view)
