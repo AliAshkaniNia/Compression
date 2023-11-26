@@ -2,6 +2,11 @@
 
 This utility is a versatile file compression tool, equipped with support for Huffman and LZW algorithms.
 
+## Design 
+Here is a high-level overview of the project represented as a UML diagram. The UML diagram is generated using [PlantUML](https://www.plantuml.com/), and you can reconstruct it by referring to the `docs/diagram.plantuml` file. The diagram provides a visual representation of the project's architecture, showcasing the relationships and interactions between key components. 
+
+<img title="UML Diagram"  src="docs/diagram.svg">
+
 
 ## Building the Project 
 To build the project, clone the repository and execute the following commands in your terminal:
@@ -11,7 +16,7 @@ cd build
 cmake ..
 cmake --build . -j${nproc}
 ```
-he following options can be enabled:
+The following options can be enabled:
 
 - `USE_ASAN` : Utilize address sanitizers if available
 - `USE_UBSAN` : Employ undefined behavior sanitizer if available
@@ -94,7 +99,7 @@ LZW serialization is quite straightforward, consisting of a sequence of 4 or 8 b
 
 A C++17 compiler is required, which should be widely supported. The only C++17 feature used here is `std::string_view`. If a modern compiler is not available, replacing all `std::string_view` with `const string&` should allow the use of a C++11 compiler.
 
-## Dependencies 
+### Dependencies 
 
 This program is self-contained and doesn't require any third-party libraries for compilation. It uses [cxxopts](https://github.com/jarro2783/cxxopts) for parsing command-line arguments and [GoogleTest](https://github.com/google/googletest) for unit testing. cxxopts is included in the project, and GoogleTest is automatically downloaded by CMake.
 

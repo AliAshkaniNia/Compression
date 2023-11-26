@@ -1,0 +1,34 @@
+@startuml
+
+interface IFileHandler {
+}
+
+class UnixFileHandler {
+}
+
+interface IStringSerializer<T> {
+}
+
+class integerToStringSerializer<T> {
+}
+
+interface IAlgorithm {
+}
+
+class HuffmanCompression {
+}
+
+class LZWCompression {
+}
+
+class CompressionArgs {
+}
+
+IFileHandler <|-- UnixFileHandler
+IStringSerializer <|-- integerToStringSerializer
+IAlgorithm <|-- HuffmanCompression
+IAlgorithm <|-- LZWCompression
+HuffmanCompression ..> IStringSerializer 
+LZWCompression ..> IStringSerializer 
+
+@enduml
