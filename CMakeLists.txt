@@ -32,10 +32,11 @@ target_compile_options(${EXEC_TARGET} PRIVATE
         $<$<AND:$<CXX_COMPILER_ID:GNU,Clang,AppleClang>,$<CONFIG:Debug>>:-Og -g>
 )
 
-option(USE_ASAN "Use address sanitizers if available" ON)
-option(USE_UBSAN "Use undefined behavior sanitizer if available" ON)
-option(USE_CLANG_TIDY "Use clang-tidy if available" ON)
-option(USE_CPPCHECK "Use cppcheck if available" ON)
+option(USE_ASAN "Use address sanitizers if available" OFF)
+option(USE_UBSAN "Use undefined behavior sanitizer if available" OFF)
+option(USE_CLANG_TIDY "Use clang-tidy if available" OFF)
+option(USE_CPPCHECK "Use cppcheck if available" OFF)
+option(BUILD_TESTS "Build Tests" ON)
 
 if(USE_CLANG_TIDY)
         find_program(CLANGTIDY NAMES clang-tidy clang-tidy-17 clang-tidy-16 clang-tidy-15 clang-tidy-14 clang-tidy-13 clang-tidy-12 clang-tidy-11 clang-tidy-10)
@@ -114,4 +115,7 @@ if (USE_UBSAN AND USE_UBSAN)
 endif ()
 
 include_directories(cxxopts)
+
+if(BUILD_TESTS)
 add_subdirectory(tests)
+endif(BUILD_TESTS)
